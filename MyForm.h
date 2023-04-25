@@ -1,6 +1,15 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <map>
+#include <filesystem>
 #include <msclr/marshal_cppstd.h> //Library to turn String^ into std::string
+#include "LoadingForm.h"
+#include "nextForm.h"
 
 namespace Project3 {
 
@@ -12,28 +21,32 @@ namespace Project3 {
 	using namespace System::Drawing;
 	using namespace msclr::interop;
 
-	/// <summary>
-	/// Summary for MyForm
-	/// </summary>
+
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
 	public:
+		
 		bool Cont = false;
-		//Form^ mainForm = gcnew MyForm();
+	
+		
 		MyForm(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
 		}
-		
-		//bool validInput();
+		void ResetVals() {
+
+			this->aInvestment->Text = "";
+			this->aHorizon->Text = "";
+
+			String^ selectedItem = "Select your Level of Risk"; // get the selected item
+			this->SelectRiskMenu->Text = selectedItem;
+		}
+		int GetInvestmentAmt() { return this->investmentAmt; }
+		int GetTimeAmt() { return this->timeAmt; }
+		String^ getRiskSel() { return this->riskSel; }
 
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
+	
 		~MyForm()
 		{
 			if (components)
@@ -64,22 +77,28 @@ namespace Project3 {
 
 
 	private: System::Windows::Forms::Button^ btnContinue;
+	private: System::Windows::Forms::PictureBox^ pictureBox1;
 
 
 
 	private:
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
+		
 		System::ComponentModel::Container ^components;
 
+
+	private:
+		LoadingForm1^ loadingForm;
+		nextForm^ nextForm;
+		int investmentAmt;
+		int timeAmt;
+		String^ riskSel;
+
+
 #pragma region 
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
+		
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 			this->line = (gcnew System::Windows::Forms::TextBox());
 			this->Title = (gcnew System::Windows::Forms::Label());
 			this->qInvestment = (gcnew System::Windows::Forms::Label());
@@ -92,7 +111,9 @@ namespace Project3 {
 			this->aInvestment = (gcnew System::Windows::Forms::TextBox());
 			this->aHorizon = (gcnew System::Windows::Forms::TextBox());
 			this->btnContinue = (gcnew System::Windows::Forms::Button());
+			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->menuStrip1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// line
@@ -168,21 +189,21 @@ namespace Project3 {
 			// highToolStripMenuItem
 			// 
 			this->highToolStripMenuItem->Name = L"highToolStripMenuItem";
-			this->highToolStripMenuItem->Size = System::Drawing::Size(224, 30);
+			this->highToolStripMenuItem->Size = System::Drawing::Size(168, 30);
 			this->highToolStripMenuItem->Text = L"High";
 			this->highToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::highToolStripMenuItem_Click);
 			// 
 			// mediumToolStripMenuItem
 			// 
 			this->mediumToolStripMenuItem->Name = L"mediumToolStripMenuItem";
-			this->mediumToolStripMenuItem->Size = System::Drawing::Size(224, 30);
+			this->mediumToolStripMenuItem->Size = System::Drawing::Size(168, 30);
 			this->mediumToolStripMenuItem->Text = L"Medium";
 			this->mediumToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::mediumToolStripMenuItem_Click);
 			// 
 			// lowToolStripMenuItem
 			// 
 			this->lowToolStripMenuItem->Name = L"lowToolStripMenuItem";
-			this->lowToolStripMenuItem->Size = System::Drawing::Size(224, 30);
+			this->lowToolStripMenuItem->Size = System::Drawing::Size(168, 30);
 			this->lowToolStripMenuItem->Text = L"Low";
 			this->lowToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::lowToolStripMenuItem_Click);
 			// 
@@ -214,12 +235,22 @@ namespace Project3 {
 			this->btnContinue->UseVisualStyleBackColor = true;
 			this->btnContinue->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
 			// 
+			// pictureBox1
+			// 
+			this->pictureBox1->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox1.Image")));
+			this->pictureBox1->Location = System::Drawing::Point(379, 111);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(191, 247);
+			this->pictureBox1->TabIndex = 9;
+			this->pictureBox1->TabStop = false;
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::Silver;
 			this->ClientSize = System::Drawing::Size(608, 489);
+			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->btnContinue);
 			this->Controls->Add(this->aHorizon);
 			this->Controls->Add(this->aInvestment);
@@ -234,10 +265,13 @@ namespace Project3 {
 			this->Load += gcnew System::EventHandler(this, &MyForm::MyForm_Load);
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
+		
+		
 #pragma endregion
 
 
@@ -245,6 +279,8 @@ namespace Project3 {
 	}
 	private: System::Void label3_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
+
+
 private: System::Void RiskLevel_ItemClicked(System::Object^ sender, System::Windows::Forms::ToolStripItemClickedEventArgs^ e) {
 }
 private: System::Void highToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -252,22 +288,61 @@ private: System::Void highToolStripMenuItem_Click(System::Object^ sender, System
 	this->SelectRiskMenu->Text = selectedItem;
 	//MessageBox::Show("You selected: " + selectedItem);
 }
+
+	   //CONTINUE BUTTON IF THE USER WANTS TO GO TO THE NEXT PAGE
+private: System::Void ShowLoadingScreen() {
+		 
+		// Create an instance of LoadingForm
+		loadingForm = gcnew Project3::LoadingForm1();
+		loadingForm->Show();
+		
+		this->Hide();
+
+		//Loops until data is loaded
+		for (int i = 0; i < 99; i++)
+		{
+			int loadingValue = loadingForm->GetProgressBarValue();
+		
+			loadingForm->UpdateBar();
+			
+			System::Threading::Thread::Sleep(50);
+		}
+		
+		loadingForm->Close();
+
+
+		
+		//Load Next Page
+		nextForm = gcnew Project3::nextForm();
+		nextForm->InvAmt(GetInvestmentAmt());
+		nextForm->TimeSpan(GetTimeAmt());
+		nextForm->RiskSel(getRiskSel());
+		nextForm->UpdateVal();
+
+		//nextForm->FindResults();
+		this->ResetVals();
+		this->Show();
+		nextForm->Show();
+		
+		
+		//while (nextForm->)
+		//this->Show();
+		
+	
+}
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	
 	bool Continue = validInput();
 
 	if (Continue){ //If continue is true, we move onto the next form
 		this->Cont = true;
-		//LOAD NEXT PAGE
-		Form^ nextForm = gcnew Form();
-		nextForm->Show();
-		this->Hide();
-		//mainForm->Hide();
+		ShowLoadingScreen();
 	}
 	else {
 		this->Cont = false;
 	}	
 }
+
 private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 	
 }
@@ -325,6 +400,10 @@ bool validInput()
 		int moneyVal = Convert::ToInt32(moneyInput);
 		int timeVal = Convert::ToInt32(timeInput);
 
+		this->investmentAmt = moneyVal;
+		this->timeAmt = timeVal;
+		this->riskSel = riskInput;
+
 		if (timeVal < 0 || timeVal > 5) { //If the number of years arent in range
 			Continue = false;
 
@@ -344,8 +423,10 @@ bool getCont() {
 }
 private:
 
-private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
-	
-}
+private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {}
 };
+
+
+
+
 }

@@ -2,3 +2,5 @@ C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.
 C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.vcxproj.SuggestedBindingRedirects.cache
 C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.MyForm.resources
 C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.vcxproj.GenerateResource.cache
+C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.LoadingForm.resources
+C:\Users\hecto\source\Programming\Projects\Project3\Project3\x64\Debug\Project3.nextForm.resources

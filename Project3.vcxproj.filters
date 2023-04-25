@@ -21,12 +21,24 @@
     <ClCompile Include="Stocks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoadingForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nextForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyForm.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Stocks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingForm.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nextForm.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
