@@ -4,12 +4,22 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <map>
+#include <vector>
+#include <list>
+#include <string>
 #include <filesystem>
+#include <tuple>
+#include <iterator>
+#include <algorithm>
 #include <msclr/marshal_cppstd.h> //Library to turn String^ into std::string
 #include "LoadingForm.h"
 #include "nextForm.h"
+
+namespace fs = std::filesystem;
+using namespace System;
+using namespace System::Windows::Forms;
+
 
 namespace Project3 {
 
@@ -25,10 +35,7 @@ namespace Project3 {
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
 	public:
-		
 		bool Cont = false;
-	
-		
 		MyForm(void)
 		{
 			InitializeComponent();
@@ -40,6 +47,12 @@ namespace Project3 {
 
 			String^ selectedItem = "Select your Level of Risk"; // get the selected item
 			this->SelectRiskMenu->Text = selectedItem;
+		}
+		Project3::MyForm^ GetFormInstance(){ return gcnew Project3::MyForm(); }
+
+		void CloseForm(Project3::MyForm^ form)
+		{
+			form->Close();
 		}
 		int GetInvestmentAmt() { return this->investmentAmt; }
 		int GetTimeAmt() { return this->timeAmt; }
@@ -56,44 +69,27 @@ namespace Project3 {
 		}
 	private: System::Windows::Forms::TextBox^ line;
 	protected:
-
 	protected:
-
 	private: System::Windows::Forms::Label^ Title;
 	private: System::Windows::Forms::Label^ qInvestment;
 	private: System::Windows::Forms::Label^ qTime;
-
 	private: System::Windows::Forms::MenuStrip^ menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^ SelectRiskMenu;
-
 	private: System::Windows::Forms::ToolStripMenuItem^ highToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ mediumToolStripMenuItem;
-
-
 	private: System::Windows::Forms::ToolStripMenuItem^ lowToolStripMenuItem;
 	private: System::Windows::Forms::TextBox^ aInvestment;
 	private: System::Windows::Forms::TextBox^ aHorizon;
-
-
-
 	private: System::Windows::Forms::Button^ btnContinue;
 	private: System::Windows::Forms::PictureBox^ pictureBox1;
-
-
-
-	private:
-		
-		System::ComponentModel::Container ^components;
-
-
+	private: System::ComponentModel::Container ^components;
 	private:
 		LoadingForm1^ loadingForm;
+		MyForm^ newForm1;
 		nextForm^ nextForm;
 		int investmentAmt;
 		int timeAmt;
 		String^ riskSel;
-
-
 #pragma region 
 		
 		void InitializeComponent(void)
@@ -225,6 +221,7 @@ namespace Project3 {
 			// 
 			// btnContinue
 			// 
+			this->btnContinue->DialogResult = System::Windows::Forms::DialogResult::OK;
 			this->btnContinue->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->btnContinue->Location = System::Drawing::Point(433, 442);
@@ -293,11 +290,19 @@ private: System::Void highToolStripMenuItem_Click(System::Object^ sender, System
 private: System::Void ShowLoadingScreen() {
 		 
 		// Create an instance of LoadingForm
+		CloseForm(GetFormInstance());
 		loadingForm = gcnew Project3::LoadingForm1();
-		loadingForm->Show();
 		
-		this->Hide();
+		loadingForm->Show();
+		this->investmentAmt = GetInvestmentAmt();
+		this->timeAmt = GetTimeAmt();
+		this->riskSel = getRiskSel();
 
+
+
+		nextForm = gcnew Project3::nextForm(investmentAmt, timeAmt, riskSel);
+	
+		this->Close();
 		//Loops until data is loaded
 		for (int i = 0; i < 99; i++)
 		{
@@ -305,30 +310,12 @@ private: System::Void ShowLoadingScreen() {
 		
 			loadingForm->UpdateBar();
 			
-			System::Threading::Thread::Sleep(50);
+			System::Threading::Thread::Sleep(5);
 		}
 		
 		loadingForm->Close();
-
-
+		nextForm->ShowDialog();
 		
-		//Load Next Page
-		nextForm = gcnew Project3::nextForm();
-		nextForm->InvAmt(GetInvestmentAmt());
-		nextForm->TimeSpan(GetTimeAmt());
-		nextForm->RiskSel(getRiskSel());
-		nextForm->UpdateVal();
-
-		//nextForm->FindResults();
-		this->ResetVals();
-		this->Show();
-		nextForm->Show();
-		
-		
-		//while (nextForm->)
-		//this->Show();
-		
-	
 }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	
@@ -342,7 +329,6 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 		this->Cont = false;
 	}	
 }
-
 private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 	
 }

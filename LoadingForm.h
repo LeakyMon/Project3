@@ -11,23 +11,16 @@ namespace Project3 {
 	using namespace System::Data;
 	using namespace System::Drawing;
 
-	/// <summary>
-	/// Summary for LoadingForm1
-	/// </summary>
+
 	public ref class LoadingForm1 : public System::Windows::Forms::Form
 	{
-	//private: System::Windows::Forms::Timer^ timer1;
-
+	
 	public:
 		
 		LoadingForm1(void)
 		{
 			InitializeComponent();
-			//timer1->Enabled = true;
-			//
-			//TODO: Add the constructor code here
-			//
-			//this->Load += gcnew System::EventHandler(this, &LoadingForm1::LoadingForm1_Load);
+			
 		}
 		LoadingForm1(int x) {
 			InitializeComponent();
@@ -36,17 +29,9 @@ namespace Project3 {
 		}
 		int GetProgressBarValue() { return progressBar1->Value; }
 		void UpdateBar() { progressBar1->Value += 1; }
-		//void LoadingForm1_Load(System::Object^ sender, System::EventArgs^ e)
-		//{
-			// Start the timer when the form loads
-		//	timer1->Enabled = true;
-		//}
-		
-	
+
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
+	
 		~LoadingForm1()
 		{
 			if (components)
@@ -65,16 +50,9 @@ namespace Project3 {
 	protected:
 
 	private:
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-
-
+	
 #pragma region Windows Form Designer generated code
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
+	
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "MyForm.h"
 namespace Project3 {
 
 	using namespace System;
@@ -18,13 +18,18 @@ namespace Project3 {
 			InitializeComponent();
 			
 		}
+		nextForm(int amount, int time, String^ riskLevel)
+		{
+			// Initialize the form's components.
+			InitializeComponent();
+
+			this->textBox2->Text = "Investment Amount: " + amount;
+			this->textBox3->Text = "Time Horizon: " + time;
+			this->textBox4->Text +=  riskLevel;
+
+		}
 		
 		void FindResults(){}
-		void UpdateVal() {
-			this->textBox2->Text += Inv;
-			this->textBox3->Text += TimeS;
-			this->textBox4->Text += riskSel;
-		}
 		void setBackButton() { this->returnBack = true; }
 		bool BackButton() { return this->returnBack; }
 		void InvAmt(int x) {
@@ -137,6 +142,7 @@ namespace Project3 {
 			// button1
 			// 
 			this->button1->BackColor = System::Drawing::Color::Red;
+			this->button1->DialogResult = System::Windows::Forms::DialogResult::OK;
 			this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.8F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->button1->Location = System::Drawing::Point(12, 360);
@@ -189,7 +195,8 @@ namespace Project3 {
 #pragma endregion
 
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-	this->Hide();
+	this->Close();
+
 	
 
 }

@@ -134,7 +134,6 @@
     <ClCompile Include="LoadingForm.cpp" />
     <ClCompile Include="MyForm.cpp" />
     <ClCompile Include="nextForm.cpp" />
-    <ClCompile Include="Stocks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LoadingForm.h">
@@ -146,7 +145,6 @@
     <ClInclude Include="nextForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="Stocks.h" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="LoadingForm.resx">
