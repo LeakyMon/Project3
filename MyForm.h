@@ -568,9 +568,7 @@ private: System::Void ShowLoadingScreen() {
 		for (int i = 0; i < 99; i++)
 		{
 			int loadingValue = loadingForm->GetProgressBarValue();
-		
 			loadingForm->UpdateBar();
-			
 			System::Threading::Thread::Sleep(5);
 		}
 		

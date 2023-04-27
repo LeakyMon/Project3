@@ -28,7 +28,7 @@ namespace Project3 {
 			this->textBox4->Text +=  riskLevel;
 			ClearLabels();
 			for (int i = 0; i < temp.size(); i++) {
-
+				
 				UpdateLabel(temp.at(i), i);
 				
 
@@ -69,7 +69,17 @@ namespace Project3 {
 			riskSel = s;
 		}
 		void UpdateLabel(std::string s, int labelNum) {
-			s.resize(5);
+			int index = 0;
+			int count = 0;
+			for (auto x : s) {
+				if (x == '.') {
+					index = count;
+				}
+				count++;
+			}
+			index += 3;
+			s.resize(index);
+			
 			String^ newString = msclr::interop::marshal_as<String^>(s);
 			String^ dollar = "$ ";
 			if (labelNum == 0) {
