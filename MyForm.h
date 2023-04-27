@@ -16,6 +16,7 @@
 #include "LoadingForm.h"
 #include "nextForm.h"
 
+
 namespace fs = std::filesystem;
 using namespace System;
 using namespace System::Windows::Forms;
@@ -299,7 +300,7 @@ private: System::Void ShowLoadingScreen() {
 		this->riskSel = getRiskSel();
 
 
-
+		
 		nextForm = gcnew Project3::nextForm(investmentAmt, timeAmt, riskSel);
 	
 		this->Close();
