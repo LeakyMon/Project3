@@ -147,7 +147,7 @@ CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& direct
 	return stock_data_map;
 }
 
- std::vector<std::tuple<std::string, double, double>> stocks_performance;
+std::vector<std::tuple<std::string, double, double>> stocks_performance;
 double calculate_volatility(const std::vector<StockData>& data) {
 	if (data.size() < 2) {
 		return 0.0;
@@ -207,8 +207,8 @@ std::vector<std::string> filter_stocks_by_risk(const std::vector<std::tuple<std:
 	return filtered_stocks;
 }
 std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, std::string risk_level, int time_horizon) {
+
 	//std::vector<std::tuple<std::string, double, double>> stocks_performance;
-	// Calculate performance and volatility for each stock
 	for (const auto& stock : stock_data.get_all()) {
 		double performance = calculate_performance(stock.second, time_horizon);
 		double volatility = calculate_volatility(stock.second);
@@ -289,14 +289,7 @@ namespace Project3 {
 		
 			InitializeComponent();
 		}
-		//MyForm(void) 
-		//{
-			
-			//std::vector<std::tuple<std::string, double, double>> stocks_performance;
-			
-			//std::vector<std::string> recommended_stocks = recommend_stocks(stock_data_map, risk_level, time_horizon);
-			//InitializeComponent();
-		//}
+		
 		void ResetVals() {
 
 			this->aInvestment->Text = "";
@@ -564,10 +557,12 @@ private: System::Void ShowLoadingScreen() {
 
 		//std::vector<std::pair<std::string, double>> temp;
 		
+		std::vector<std::pair<std::string, double>> investment_allocation = allocate_investment_proportionally(stocks_performance, recommended_stocks, investmentAmt);
+
 	
+		nextForm = gcnew Project3::nextForm(investmentAmt, timeAmt, riskSel, recommended_stocks, investment_allocation);
 	
-		nextForm = gcnew Project3::nextForm(investmentAmt, timeAmt, riskSel, recommended_stocks);
-	
+		stocks_performance.clear();
 		this->Close();
 		//Loops until data is loaded
 		for (int i = 0; i < 99; i++)
@@ -581,6 +576,7 @@ private: System::Void ShowLoadingScreen() {
 		
 		loadingForm->Close();
 		nextForm->ShowDialog();
+		//nextForm->Close();
 		
 }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {

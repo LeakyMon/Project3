@@ -10,7 +10,7 @@ void main(array<System::String^>^ args) {
   
     CustomUnorderedMap obj;
     obj = obj.getMap();
-    //obj.InitializeStockMap();
+   
     while (true) {
 
         Project3::MyForm^ form = gcnew Project3::MyForm(obj);  
