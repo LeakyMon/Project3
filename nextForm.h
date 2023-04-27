@@ -18,7 +18,7 @@ namespace Project3 {
 			InitializeComponent();
 			
 		}
-		nextForm(int amount, int time, String^ riskLevel)
+		nextForm(int amount, int time, String^ riskLevel, std::vector<std::string> temp)
 		{
 			// Initialize the form's components.
 			InitializeComponent();
@@ -26,6 +26,12 @@ namespace Project3 {
 			this->textBox2->Text = "Investment Amount: " + amount;
 			this->textBox3->Text = "Time Horizon: " + time;
 			this->textBox4->Text +=  riskLevel;
+			for (int i = 0; i < temp.size(); i++) {
+
+				UpdateLabel(temp.at(i), i);
+				
+
+			}
 
 		}
 		
@@ -40,6 +46,29 @@ namespace Project3 {
 		}
 		void RiskSel(String^ s) {
 			riskSel = s;
+		}
+		void UpdateLabel(std::string s, int labelNum) {
+			String^ newString = msclr::interop::marshal_as<String^>(s);
+			if (labelNum == 0) {
+				this->label1->Text = newString;
+			}
+			else if (labelNum == 1) {
+				this->label2->Text = newString;
+			}
+			else if (labelNum == 2) {
+				this->label3->Text = newString;
+			}
+			else if (labelNum == 3) {
+				this->label4->Text = newString;
+			}
+			else if (labelNum == 4) {
+				this->label5->Text = newString;
+			}
+			else {
+				this->label6->Text = newString;
+			}
+			
+
 		}
 
 	protected:
@@ -65,16 +94,16 @@ namespace Project3 {
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::TextBox^ textBox5;
 	private: System::Windows::Forms::TextBox^ textBox6;
-	private: System::Windows::Forms::Label^ label1;
-	private: System::Windows::Forms::Label^ label2;
-	private: System::Windows::Forms::Label^ label3;
-	private: System::Windows::Forms::Label^ label4;
-	private: System::Windows::Forms::Label^ label5;
-	private: System::Windows::Forms::Label^ label6;
-	private: System::Windows::Forms::Label^ label7;
-	private: System::Windows::Forms::Label^ label8;
-	private: System::Windows::Forms::Label^ label9;
-	private: System::Windows::Forms::Label^ label10;
+private: System::Windows::Forms::Label^ label1;
+private: System::Windows::Forms::Label^ label2;
+private: System::Windows::Forms::Label^ label3;
+private: System::Windows::Forms::Label^ label4;
+private: System::Windows::Forms::Label^ label5;
+private: System::Windows::Forms::Label^ label6;
+
+
+
+
 		   String^ riskSel;
 
 		   
@@ -98,10 +127,6 @@ namespace Project3 {
 			this->label4 = (gcnew System::Windows::Forms::Label());
 			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->label6 = (gcnew System::Windows::Forms::Label());
-			this->label7 = (gcnew System::Windows::Forms::Label());
-			this->label8 = (gcnew System::Windows::Forms::Label());
-			this->label9 = (gcnew System::Windows::Forms::Label());
-			this->label10 = (gcnew System::Windows::Forms::Label());
 			this->tableLayoutPanel1->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -149,15 +174,11 @@ namespace Project3 {
 			this->tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				50)));
 			this->tableLayoutPanel1->Controls->Add(this->label1, 0, 0);
-			this->tableLayoutPanel1->Controls->Add(this->label2, 1, 0);
-			this->tableLayoutPanel1->Controls->Add(this->label3, 0, 1);
-			this->tableLayoutPanel1->Controls->Add(this->label4, 1, 1);
-			this->tableLayoutPanel1->Controls->Add(this->label5, 0, 2);
-			this->tableLayoutPanel1->Controls->Add(this->label6, 1, 2);
-			this->tableLayoutPanel1->Controls->Add(this->label7, 0, 3);
-			this->tableLayoutPanel1->Controls->Add(this->label8, 1, 3);
-			this->tableLayoutPanel1->Controls->Add(this->label9, 0, 4);
-			this->tableLayoutPanel1->Controls->Add(this->label10, 1, 4);
+			this->tableLayoutPanel1->Controls->Add(this->label2, 0, 1);
+			this->tableLayoutPanel1->Controls->Add(this->label3, 0, 2);
+			this->tableLayoutPanel1->Controls->Add(this->label4, 0, 3);
+			this->tableLayoutPanel1->Controls->Add(this->label5, 0, 4);
+			this->tableLayoutPanel1->Controls->Add(this->label6, 0, 5);
 			this->tableLayoutPanel1->Location = System::Drawing::Point(343, 85);
 			this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
 			this->tableLayoutPanel1->RowCount = 6;
@@ -210,12 +231,11 @@ namespace Project3 {
 			this->label1->Size = System::Drawing::Size(44, 16);
 			this->label1->TabIndex = 0;
 			this->label1->Text = L"label1";
-			this->label1->Click += gcnew System::EventHandler(this, &nextForm::label1_Click);
 			// 
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(104, 1);
+			this->label2->Location = System::Drawing::Point(4, 45);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(44, 16);
 			this->label2->TabIndex = 1;
@@ -224,7 +244,7 @@ namespace Project3 {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(4, 45);
+			this->label3->Location = System::Drawing::Point(4, 123);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(44, 16);
 			this->label3->TabIndex = 2;
@@ -233,7 +253,7 @@ namespace Project3 {
 			// label4
 			// 
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(104, 45);
+			this->label4->Location = System::Drawing::Point(4, 202);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(44, 16);
 			this->label4->TabIndex = 3;
@@ -242,7 +262,7 @@ namespace Project3 {
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(4, 123);
+			this->label5->Location = System::Drawing::Point(4, 284);
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(44, 16);
 			this->label5->TabIndex = 4;
@@ -251,47 +271,11 @@ namespace Project3 {
 			// label6
 			// 
 			this->label6->AutoSize = true;
-			this->label6->Location = System::Drawing::Point(104, 123);
+			this->label6->Location = System::Drawing::Point(4, 343);
 			this->label6->Name = L"label6";
 			this->label6->Size = System::Drawing::Size(44, 16);
 			this->label6->TabIndex = 5;
 			this->label6->Text = L"label6";
-			// 
-			// label7
-			// 
-			this->label7->AutoSize = true;
-			this->label7->Location = System::Drawing::Point(4, 202);
-			this->label7->Name = L"label7";
-			this->label7->Size = System::Drawing::Size(44, 16);
-			this->label7->TabIndex = 6;
-			this->label7->Text = L"label7";
-			// 
-			// label8
-			// 
-			this->label8->AutoSize = true;
-			this->label8->Location = System::Drawing::Point(104, 202);
-			this->label8->Name = L"label8";
-			this->label8->Size = System::Drawing::Size(44, 16);
-			this->label8->TabIndex = 7;
-			this->label8->Text = L"label8";
-			// 
-			// label9
-			// 
-			this->label9->AutoSize = true;
-			this->label9->Location = System::Drawing::Point(4, 284);
-			this->label9->Name = L"label9";
-			this->label9->Size = System::Drawing::Size(44, 16);
-			this->label9->TabIndex = 8;
-			this->label9->Text = L"label9";
-			// 
-			// label10
-			// 
-			this->label10->AutoSize = true;
-			this->label10->Location = System::Drawing::Point(104, 284);
-			this->label10->Name = L"label10";
-			this->label10->Size = System::Drawing::Size(51, 16);
-			this->label10->TabIndex = 9;
-			this->label10->Text = L"label10";
 			// 
 			// nextForm
 			// 
