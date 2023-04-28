@@ -35,6 +35,10 @@ struct StockData {
 	double close;
 	long volume;
 };
+
+// we found guideness to build this function at https://www.geeksforgeeks.org/build-a-custom-map-using-header-file-in-c/
+// this function uses balanced BST and not red black tree because it was a less complicated approach (professor said it was ok!)
+
 class CustomUnorderedMap {
 public:
 	//CustomUnorderedMap();
@@ -42,16 +46,26 @@ public:
 	CustomUnorderedMap read_stock_data(const std::string& directory);
 
 	CustomUnorderedMap getMap() {
+
 		CustomUnorderedMap stock_data_map;
 		std::string directory = "C:/Users/hecto/source/Programming/Projects/Project3/Project3/all_stocks/Stocks";
 		double investment = 10000.0;
 		std::string risk_level = "high";
 		int time_horizon = 5;
 		return stock_data_map = read_stock_data(directory);
+
 	}
+
+	//insert function that that the root, the key(ticker) into the BST and its related value
+    //this function calls the private helper function. it assigns the result back to the root
+
 	void insert(const std::string& key, const StockData& value) {
 		root = insert_helper(root, key, value);
 	}
+
+	//the get method gets the stock data vector corresponding with the input key
+	// the search method finds the node with the key if it finds it it returns its values 
+
 	std::vector<StockData>& get(const std::string& key) {
 		TreeNode* node = search(root, key);
 		if (node) {
@@ -59,6 +73,10 @@ public:
 		}
 		throw std::runtime_error("Key not found");
 	}
+
+	// the get_all method returns all the key value pair in the bst.
+	// the in order traversal method is later called to traverse the BST and fill the all data vector
+
 	std::vector<std::pair<std::string, std::vector<StockData>>> get_all() const {
 		std::vector<std::pair<std::string, std::vector<StockData>>> all_data;
 		in_order_traversal(root, all_data);
@@ -74,6 +92,7 @@ private:
 		TreeNode(const std::string& k, const StockData& v) : key(k), values({ v }), left(nullptr), right(nullptr) {}
 	};
 	TreeNode* root = nullptr;
+	//insert helper method similar to slides from class
 	TreeNode* insert_helper(TreeNode* node, const std::string& key, const StockData& value) {
 		if (node == nullptr) {
 			return new TreeNode(key, value);
@@ -89,6 +108,7 @@ private:
 		}
 		return node;
 	}
+	// search method slides from class
 	TreeNode* search(TreeNode* node, const std::string& key) {
 		if (node == nullptr || key == node->key) {
 			return node;
@@ -106,6 +126,8 @@ private:
 		}
 	}
 };
+
+//function to read the CSV files stock data
 
 CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& directory)
 {
@@ -147,21 +169,34 @@ CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& direct
 	return stock_data_map;
 }
 
+//initialize vector to store a tuple containing stock ticker performance and volatility
+//the vector is placed here because two functions are dependent of it
+
 std::vector<std::tuple<std::string, double, double>> stocks_performance;
+
+
+//measures how much a stock fluctuates in time
+//it calculates this by year from its historical data
+//formulas come from "investopedia" topic: "sum of squares", "daily returns"
+
 double calculate_volatility(const std::vector<StockData>& data) {
 	if (data.size() < 2) {
 		return 0.0;
 	}
+
 	double sum_of_squared_returns = 0.0;
 	double previous_close = data[0].close;
+
 	for (std::size_t i = 1; i < data.size(); ++i) {
 		double daily_return = (data[i].close - previous_close) / previous_close;
 		sum_of_squared_returns += daily_return * daily_return;
 		previous_close = data[i].close;
 	}
+
 	double mean_of_squared_returns = sum_of_squared_returns / (data.size() - 1);
 	double daily_volatility = std::sqrt(mean_of_squared_returns);
 	// Annualize the daily volatility
+
 	double annualized_volatility = daily_volatility * std::sqrt(252);
 	return annualized_volatility;
 }
@@ -173,6 +208,7 @@ double calculate_performance(const std::vector<StockData>& data, int time_horizo
 	std::string target_date = data.back().date;
 	int target_year = std::stoi(target_date.substr(0, 4)) - time_horizon;
 	target_date.replace(0, 4, std::to_string(target_year));
+
 	// Find the stock data at the start of the time horizon
 	auto start_data = std::find_if(data.rbegin(), data.rend(), [&](const StockData& stock_data) {
 		return stock_data.date <= target_date;
@@ -182,6 +218,7 @@ double calculate_performance(const std::vector<StockData>& data, int time_horizo
 	}
 	double start_price = start_data->close;
 	double end_price = data.back().close;
+
 	// Calculate the Compound Annual Growth Rate (CAGR)
 	double cagr = std::pow((end_price / start_price), (1.0 / time_horizon)) - 1;
 	return cagr;
@@ -189,11 +226,14 @@ double calculate_performance(const std::vector<StockData>& data, int time_horizo
 std::vector<std::string> filter_stocks_by_risk(const std::vector<std::tuple<std::string, double, double>>& stocks_performance, const std::string& risk_level) {
 	std::vector<std::string> filtered_stocks;
 	// Define risk level thresholds
+
 	double low_risk_threshold = 0.15;
 	double medium_risk_threshold = 0.35;
+
 	for (const auto& stock_performance : stocks_performance) {
 		const std::string& stock_symbol = std::get<0>(stock_performance);
 		double volatility = std::get<2>(stock_performance);
+
 		if (risk_level == "low" && volatility <= low_risk_threshold) {
 			filtered_stocks.push_back(stock_symbol);
 		}
@@ -204,8 +244,11 @@ std::vector<std::string> filter_stocks_by_risk(const std::vector<std::tuple<std:
 			filtered_stocks.push_back(stock_symbol);
 		}
 	}
+
 	return filtered_stocks;
 }
+
+
 std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, std::string risk_level, int time_horizon) {
 
 	//std::vector<std::tuple<std::string, double, double>> stocks_performance;
@@ -214,8 +257,10 @@ std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, 
 		double volatility = calculate_volatility(stock.second);
 		stocks_performance.push_back(std::make_tuple(stock.first, performance, volatility));
 	}
+
 	// Filter stocks based on the risk level
 	std::vector<std::string> filtered_stocks = filter_stocks_by_risk(stocks_performance, risk_level);
+	
 	// Sort filtered stocks based on performance
 	std::sort(filtered_stocks.begin(), filtered_stocks.end(), [&](const std::string& a, const std::string& b) {
 		double performance_a = std::get<1>(*std::find_if(stocks_performance.begin(), stocks_performance.end(), [&](const std::tuple<std::string, double, double>& stock_performance) {
@@ -226,15 +271,22 @@ std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, 
 		}));
 	return performance_a > performance_b;
 		});
+
 	// Select the top 5 stocks
+
 	std::vector<std::string> recommended_stocks;
 	for (std::size_t i = 0; i <= 5 && i < filtered_stocks.size(); ++i) {
 		recommended_stocks.push_back(filtered_stocks[i]);
 	}
 	return recommended_stocks;
 }
+
+
+
 std::vector<std::pair<std::string, double>> allocate_investment_proportionally(const std::vector<std::tuple<std::string, double, double>>& stocks_performance, const std::vector<std::string>& stock_picks, double investment) {
+	
 	// 1. Calculate the total performance of the top 5 stocks and the minimum performance
+
 	double total_performance = 0.0;
 	double min_performance = std::numeric_limits<double>::max();
 	for (const auto& stock : stocks_performance) {
@@ -243,16 +295,21 @@ std::vector<std::pair<std::string, double>> allocate_investment_proportionally(c
 			min_performance = std::min(min_performance, std::get<1>(stock));
 		}
 	}
+
 	// 2. Shift the performance values to be positive
 	total_performance += (-min_performance) * stock_picks.size();
+
 	// 3. Create an empty vector to store the stock tickers and their corresponding investment amounts
 	std::vector<std::pair<std::string, double>> investment_allocation;
+
 	// 4. Iterate through the stock_picks vector and create a pair of stock ticker and investment amount
+
 	for (const auto& stock_ticker : stock_picks) {
 		// Find the stock's performance in the stocks_performance vector
 		auto it = std::find_if(stocks_performance.begin(), stocks_performance.end(), [&](const auto& stock) {
 			return std::get<0>(stock) == stock_ticker;
 			});
+
 		if (it != stocks_performance.end()) {
 			// Calculate the investment amount for this stock based on its shifted performance relative to the total performance
 			double stock_performance = std::get<1>(*it) + (-min_performance);
@@ -261,11 +318,10 @@ std::vector<std::pair<std::string, double>> allocate_investment_proportionally(c
 			investment_allocation.push_back(std::make_pair(stock_ticker, investment_for_stock));
 		}
 	}
+
 	// 5. Return the investment_allocation vector containing the stock tickers and their corresponding investment amounts
 	return investment_allocation;
 }
-
-
 
 
 namespace Project3 {
@@ -318,6 +374,7 @@ namespace Project3 {
 				delete components;
 			}
 		}
+
 	private: System::Windows::Forms::TextBox^ line;
 	protected:
 	protected:
@@ -343,7 +400,8 @@ namespace Project3 {
 		String^ riskSel;
 		
 #pragma region 
-		
+
+		//Initializes the windows forms components, code generated by windows forms
 		void InitializeComponent(void)
 		{
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
@@ -532,6 +590,8 @@ namespace Project3 {
 
 private: System::Void RiskLevel_ItemClicked(System::Object^ sender, System::Windows::Forms::ToolStripItemClickedEventArgs^ e) {
 }
+	   //Finds which option user selects
+
 private: System::Void highToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	String^ selectedItem = "high"; // get the selected item
 	this->SelectRiskMenu->Text = selectedItem;
@@ -543,16 +603,18 @@ private: System::Void ShowLoadingScreen() {
 		 
 		// Create an instance of LoadingForm
 		CloseForm(GetFormInstance());
+
+		//Displays the loading screen while data is being processed
 		loadingForm = gcnew Project3::LoadingForm1();
-		
 		loadingForm->Show();
+		//Gets the user input
 		this->investmentAmt = GetInvestmentAmt();
 		this->timeAmt = GetTimeAmt();
 		this->riskSel = getRiskSel();
 
+		//String^ to string
 		std::string tempRiskSel = msclr::interop::marshal_as<std::string>(getRiskSel());
-		//Before the nextForm is made we gotta figure out how to find the recommend stocks in 
-		//This area
+		
 		std::vector<std::string> recommended_stocks = recommend_stocks(tempObj, tempRiskSel, timeAmt);
 
 		//std::vector<std::pair<std::string, double>> temp;
@@ -561,10 +623,13 @@ private: System::Void ShowLoadingScreen() {
 
 	
 		nextForm = gcnew Project3::nextForm(investmentAmt, timeAmt, riskSel, recommended_stocks, investment_allocation);
-	
+		
+		//Empties vector
 		stocks_performance.clear();
+
 		this->Close();
 		//Loops until data is loaded
+		//Creates the loading bar effect
 		for (int i = 0; i < 99; i++)
 		{
 			int loadingValue = loadingForm->GetProgressBarValue();
@@ -573,10 +638,12 @@ private: System::Void ShowLoadingScreen() {
 		}
 		
 		loadingForm->Close();
+		//Opens the nextForm
 		nextForm->ShowDialog();
-		//nextForm->Close();
+		
 		
 }
+
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	
 	bool Continue = validInput();
@@ -594,6 +661,7 @@ private: System::Void textBox2_TextChanged(System::Object^ sender, System::Event
 }
 private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
+
 private: System::Void toolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
 	String^ selectedItem = "Select your Level of Risk"; // get the selected item
 	this->SelectRiskMenu->Text = selectedItem;
@@ -611,6 +679,7 @@ private: System::Void lowToolStripMenuItem_Click(System::Object^ sender, System:
 
 bool validInput()
 {
+	//
 	bool Continue = true;
 	String^ moneyInput = this->aInvestment->Text;
 	String^ timeInput = this->aHorizon->Text;

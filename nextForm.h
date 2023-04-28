@@ -18,6 +18,7 @@ namespace Project3 {
 			InitializeComponent();
 			
 		}
+		//Constructor that initializes all the data necessary
 		nextForm(int amount, int time, String^ riskLevel, std::vector<std::string> temp, std::vector<std::pair<std::string, double>> investmentAll)
 		{
 			// Initialize the form's components.
@@ -27,12 +28,14 @@ namespace Project3 {
 			this->textBox3->Text = "Time Horizon: " + time;
 			this->textBox4->Text +=  riskLevel;
 			ClearLabels();
+			//Updates each label box in the panel to display the correct info
 			for (int i = 0; i < temp.size(); i++) {
 				
 				UpdateLabel(temp.at(i), i);
 				
 
 			}
+			//Same but displays prices
 			int cnt = 6;
 			for (auto it = investmentAll.begin(); it != investmentAll.end(); ++it) {
 				UpdateLabel(std::to_string(it->second), cnt);
@@ -56,9 +59,7 @@ namespace Project3 {
 			this->label11->Text = "";
 			this->label12->Text = "";
 		}
-		void FindResults(){}
-		void setBackButton() { this->returnBack = true; }
-		bool BackButton() { return this->returnBack; }
+	
 		void InvAmt(int x) {
 			Inv = x;
 		}
@@ -68,9 +69,11 @@ namespace Project3 {
 		void RiskSel(String^ s) {
 			riskSel = s;
 		}
+		//Updates the labels
 		void UpdateLabel(std::string s, int labelNum) {
 			int index = 0;
 			int count = 0;
+			//Finds the decimal and does 2 digits after
 			for (auto x : s) {
 				if (x == '.') {
 					index = count;
@@ -79,6 +82,8 @@ namespace Project3 {
 			}
 			index += 3;
 			s.resize(index);
+
+			//string to String^
 			
 			String^ newString = msclr::interop::marshal_as<String^>(s);
 			String^ dollar = "$ ";
@@ -144,27 +149,21 @@ namespace Project3 {
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::TextBox^ textBox5;
 	private: System::Windows::Forms::TextBox^ textBox6;
-private: System::Windows::Forms::Label^ label1;
-private: System::Windows::Forms::Label^ label2;
-private: System::Windows::Forms::Label^ label3;
-private: System::Windows::Forms::Label^ label4;
-private: System::Windows::Forms::Label^ label5;
-private: System::Windows::Forms::Label^ label6;
-private: System::Windows::Forms::Label^ label7;
-private: System::Windows::Forms::Label^ label8;
-private: System::Windows::Forms::Label^ label9;
-private: System::Windows::Forms::Label^ label10;
-private: System::Windows::Forms::Label^ label11;
-private: System::Windows::Forms::Label^ label12;
+	private: System::Windows::Forms::Label^ label1;
+	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::Label^ label3;
+	private: System::Windows::Forms::Label^ label4;
+	private: System::Windows::Forms::Label^ label5;
+	private: System::Windows::Forms::Label^ label6;
+	private: System::Windows::Forms::Label^ label7;
+	private: System::Windows::Forms::Label^ label8;
+	private: System::Windows::Forms::Label^ label9;
+	private: System::Windows::Forms::Label^ label10;
+	private: System::Windows::Forms::Label^ label11;
+	private: System::Windows::Forms::Label^ label12;
+	 String^ riskSel;
 
-
-
-
-		   String^ riskSel;
-
-		   
-
-	
+		  
 #pragma region 
 	
 		void InitializeComponent(void)
@@ -423,9 +422,8 @@ private: System::Windows::Forms::Label^ label12;
 #pragma endregion
 
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+	//Closes the form if user presses back
 	this->Close();
-
-	
 
 }
 private: System::Void label1_Click(System::Object^ sender, System::EventArgs^ e) {

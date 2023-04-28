@@ -7,8 +7,10 @@ void main(array<System::String^>^ args) {
     Application::EnableVisualStyles();
     Application::SetCompatibleTextRenderingDefault(false);
 
-  
+    //Creates an object and loads stock data so it doesnt have to do it every time  
     CustomUnorderedMap obj;
+
+    //Stores all the data points, takes a minute
     obj = obj.getMap();
    
     while (true) {
