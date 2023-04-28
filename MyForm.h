@@ -25,7 +25,6 @@ using namespace System::Windows::Forms;
 
 
 
-
 struct StockData {
 	std::string ticker;
 	std::string date;
@@ -36,12 +35,12 @@ struct StockData {
 	long volume;
 };
 
-// we found guideness to build this function at https://www.geeksforgeeks.org/build-a-custom-map-using-header-file-in-c/
-// this function uses balanced BST and not red black tree because it was a less complicated approach (professor said it was ok!)
 
+
+//Custom unorder class uses a simple hash function
+//reference Youtube video "Hash Table implementation" - Coding Jesus
 class CustomUnorderedMap {
 public:
-	//CustomUnorderedMap();
 
 	CustomUnorderedMap read_stock_data(const std::string& directory);
 
@@ -56,93 +55,83 @@ public:
 
 	}
 
-	//insert function that that the root, the key(ticker) into the BST and its related value
-    //this function calls the private helper function. it assigns the result back to the root
+	//constructor initiallizing vector table of lists 
+	CustomUnorderedMap(size_t capacity = 1000) : table(capacity) {}
 
+
+	//insert function to insert key-values pairs
+	//we are using the ticker values extracted from the files as keys
 	void insert(const std::string& key, const StockData& value) {
-		root = insert_helper(root, key, value);
-	}
-
-	//the get method gets the stock data vector corresponding with the input key
-	// the search method finds the node with the key if it finds it it returns its values 
-
-	std::vector<StockData>& get(const std::string& key) {
-		TreeNode* node = search(root, key);
-		if (node) {
-			return node->values;
+		size_t hash_value = hash_function(key);
+		for (auto& kv : table[hash_value]) {
+			if (kv.first == key) {
+				kv.second.push_back(value);
+				return;
+			}
 		}
-		throw std::runtime_error("Key not found");
+		table[hash_value].push_back({ key, {value} });
 	}
 
-	// the get_all method returns all the key value pair in the bst.
-	// the in order traversal method is later called to traverse the BST and fill the all data vector
+	//returns a reference to the vector stock data
+	//check for key in the bucket 
+	std::vector<StockData>& get(const std::string& key) {
+		size_t hash_value = hash_function(key);
+		for (auto& kv : table[hash_value]) {
+			if (kv.first == key) {
+				return kv.second;
+			}
+		}
+		throw std::runtime_error("No KEY!!");
+	}
 
+	//custom iterator that passes through all the buckets
 	std::vector<std::pair<std::string, std::vector<StockData>>> get_all() const {
 		std::vector<std::pair<std::string, std::vector<StockData>>> all_data;
-		in_order_traversal(root, all_data);
+		for (const auto& bucket : table) {
+			for (const auto& entry : bucket) {
+				all_data.push_back(entry);
+			}
+		}
 		return all_data;
 	}
-private:
-	
-	struct TreeNode {
-		std::string key;
-		std::vector<StockData> values;
-		TreeNode* left;
-		TreeNode* right;
-		TreeNode(const std::string& k, const StockData& v) : key(k), values({ v }), left(nullptr), right(nullptr) {}
-	};
-	TreeNode* root = nullptr;
-	//insert helper method similar to slides from class
-	TreeNode* insert_helper(TreeNode* node, const std::string& key, const StockData& value) {
-		if (node == nullptr) {
-			return new TreeNode(key, value);
-		}
-		if (key == node->key) {
-			node->values.push_back(value);
-		}
-		else if (key < node->key) {
-			node->left = insert_helper(node->left, key, value);
-		}
-		else {
-			node->right = insert_helper(node->right, key, value);
-		}
-		return node;
-	}
-	// search method slides from class
-	TreeNode* search(TreeNode* node, const std::string& key) {
-		if (node == nullptr || key == node->key) {
-			return node;
-		}
-		if (key < node->key) {
-			return search(node->left, key);
-		}
-		return search(node->right, key);
-	}
-	void in_order_traversal(TreeNode* node, std::vector<std::pair<std::string, std::vector<StockData>>>& all_data) const {
-		if (node != nullptr) {
-			in_order_traversal(node->left, all_data);
-			all_data.push_back({ node->key, node->values });
-			in_order_traversal(node->right, all_data);
-		}
-	}
-};
 
+
+private:
+	//calculate the hash value for a given key
+	size_t hash_function(const std::string& key) {
+		size_t hash_value = 0;
+		for (char ch : key) {
+			//uses polynomial rolling hash
+			//uses a prime number to reduce the possibility of collision
+			//however we are dealing with stock tickers that are unique
+			hash_value = (hash_value * 31 + ch) % table.size();
+		}
+		return hash_value;
+	}
+
+	//vector of lists 
+	std::vector<std::list<std::pair<std::string, std::vector<StockData>>>> table;
+};
 //function to read the CSV files stock data
 
-CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& directory)
-{
+//the vector is placed here because two functions are dependent of it
+std::vector<std::tuple<std::string, double, double>> stocks_performance;
+
+//function to read the CSV files stock data
+CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& directory) {
 	CustomUnorderedMap stock_data_map;
 	for (const auto& entry : fs::directory_iterator(directory)) {
 		if (entry.path().extension() == ".csv") {
 			std::string file_name = entry.path().filename().string();
 			std::string ticker = file_name.substr(0, file_name.find("_"));
+
 			std::ifstream file(entry.path().string());
 			if (!file.is_open()) {
-				std::cerr << "File Not Found??? " << file_name << std::endl;
-				throw std::runtime_error("Error: Unable to open file " + file_name);
+				throw std::runtime_error("Error: File?? " + file_name);
 			}
+
 			std::string line;
-			std::getline(file, line); // Skip header
+			std::getline(file, line);
 			while (std::getline(file, line)) {
 				std::istringstream iss(line);
 				std::string date_str, open_str, high_str, low_str, close_str, volume_str;
@@ -152,6 +141,7 @@ CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& direct
 				std::getline(iss, low_str, ',');
 				std::getline(iss, close_str, ',');
 				std::getline(iss, volume_str);
+
 				StockData data;
 				data.ticker = ticker;
 				data.date = date_str;
@@ -160,8 +150,10 @@ CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& direct
 				data.low = std::stod(low_str);
 				data.close = std::stod(close_str);
 				data.volume = std::stol(volume_str);
+
 				stock_data_map.insert(ticker, data);
 			}
+
 			// Close the file
 			file.close();
 		}
@@ -169,24 +161,23 @@ CustomUnorderedMap CustomUnorderedMap::read_stock_data(const std::string& direct
 	return stock_data_map;
 }
 
-//initialize vector to store a tuple containing stock ticker performance and volatility
-//the vector is placed here because two functions are dependent of it
-
-std::vector<std::tuple<std::string, double, double>> stocks_performance;
-
 
 //measures how much a stock fluctuates in time
 //it calculates this by year from its historical data
 //formulas come from "investopedia" topic: "sum of squares", "daily returns"
-
 double calculate_volatility(const std::vector<StockData>& data) {
 	if (data.size() < 2) {
 		return 0.0;
 	}
 
+	//initialize to save the sum of squared daily returns
 	double sum_of_squared_returns = 0.0;
+	//stores the closing price from the previous data point
 	double previous_close = data[0].close;
 
+	//iterates throguh the hist data 
+	//adds the square of the daily return to the sum of squares
+	//it updates previous close with the current closing price
 	for (std::size_t i = 1; i < data.size(); ++i) {
 		double daily_return = (data[i].close - previous_close) / previous_close;
 		sum_of_squared_returns += daily_return * daily_return;
@@ -195,45 +186,54 @@ double calculate_volatility(const std::vector<StockData>& data) {
 
 	double mean_of_squared_returns = sum_of_squared_returns / (data.size() - 1);
 	double daily_volatility = std::sqrt(mean_of_squared_returns);
-	// Annualize the daily volatility
 
+	// Annualize the daily volatility
+	//252 is the aprox trading days in a year (it doesn't count weekends)
 	double annualized_volatility = daily_volatility * std::sqrt(252);
+
 	return annualized_volatility;
 }
+
 double calculate_performance(const std::vector<StockData>& data, int time_horizon) {
 	if (data.size() < 2) {
 		return 0.0;
 	}
-	// Find the earliest date within the time horizon
+
+	// subtract the time input to the last date in the historical data
 	std::string target_date = data.back().date;
 	int target_year = std::stoi(target_date.substr(0, 4)) - time_horizon;
 	target_date.replace(0, 4, std::to_string(target_year));
 
-	// Find the stock data at the start of the time horizon
+	// we go to the start of the data that we found before
 	auto start_data = std::find_if(data.rbegin(), data.rend(), [&](const StockData& stock_data) {
 		return stock_data.date <= target_date;
 		});
+
 	if (start_data == data.rend()) {
 		return 0.0;
 	}
+
 	double start_price = start_data->close;
 	double end_price = data.back().close;
 
-	// Calculate the Compound Annual Growth Rate (CAGR)
+	// Calculate the Compound Annual Growth Rate (CAGR) formula from investopedia.com
 	double cagr = std::pow((end_price / start_price), (1.0 / time_horizon)) - 1;
+
 	return cagr;
 }
+
 std::vector<std::string> filter_stocks_by_risk(const std::vector<std::tuple<std::string, double, double>>& stocks_performance, const std::string& risk_level) {
 	std::vector<std::string> filtered_stocks;
-	// Define risk level thresholds
 
-	double low_risk_threshold = 0.15;
+	// Define risk level thresholds
+	//this are the volatility values
+	double low_risk_threshold = 0.25;
 	double medium_risk_threshold = 0.35;
 
 	for (const auto& stock_performance : stocks_performance) {
 		const std::string& stock_symbol = std::get<0>(stock_performance);
 		double volatility = std::get<2>(stock_performance);
-
+		//assign the respective levels of volatility
 		if (risk_level == "low" && volatility <= low_risk_threshold) {
 			filtered_stocks.push_back(stock_symbol);
 		}
@@ -248,21 +248,23 @@ std::vector<std::string> filter_stocks_by_risk(const std::vector<std::tuple<std:
 	return filtered_stocks;
 }
 
-
 std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, std::string risk_level, int time_horizon) {
 
-	//std::vector<std::tuple<std::string, double, double>> stocks_performance;
+	// assign performance and volatility for each stock usign the helper functions
+	// get_all is our own function to iterate through our custom class object
 	for (const auto& stock : stock_data.get_all()) {
 		double performance = calculate_performance(stock.second, time_horizon);
 		double volatility = calculate_volatility(stock.second);
 		stocks_performance.push_back(std::make_tuple(stock.first, performance, volatility));
 	}
 
-	// Filter stocks based on the risk level
+	// create the vector to store the filtered stock info
 	std::vector<std::string> filtered_stocks = filter_stocks_by_risk(stocks_performance, risk_level);
-	
-	// Sort filtered stocks based on performance
+
+	// Sort the filter tickers by performance
+	//we found a similar implementation here on stackoverflow https://stackoverflow.com/questions/14322299/c-stdfind-with-a-custom-comparator
 	std::sort(filtered_stocks.begin(), filtered_stocks.end(), [&](const std::string& a, const std::string& b) {
+		//custom comparisson function that will find the performance of the stocks and compare them
 		double performance_a = std::get<1>(*std::find_if(stocks_performance.begin(), stocks_performance.end(), [&](const std::tuple<std::string, double, double>& stock_performance) {
 			return std::get<0>(stock_performance) == a;
 			}));
@@ -273,55 +275,59 @@ std::vector<std::string> recommend_stocks(const CustomUnorderedMap& stock_data, 
 		});
 
 	// Select the top 5 stocks
-
 	std::vector<std::string> recommended_stocks;
 	for (std::size_t i = 0; i <= 5 && i < filtered_stocks.size(); ++i) {
 		recommended_stocks.push_back(filtered_stocks[i]);
 	}
+
 	return recommended_stocks;
 }
 
-
-
+//vector function that receives a vector of stock performance as tuples containing stock name, the performance and the volatility
+//it also gets a vector the recommendation stocks and the desiered investment amount
 std::vector<std::pair<std::string, double>> allocate_investment_proportionally(const std::vector<std::tuple<std::string, double, double>>& stocks_performance, const std::vector<std::string>& stock_picks, double investment) {
-	
-	// 1. Calculate the total performance of the top 5 stocks and the minimum performance
-
+	// Calculate the total performance of the top 5 tickers and the minimum performance
 	double total_performance = 0.0;
 	double min_performance = std::numeric_limits<double>::max();
+	//iteretes through all the recomendation of stocks
 	for (const auto& stock : stocks_performance) {
+		//for each recommendation we find the performance using std::find
 		if (std::find(stock_picks.begin(), stock_picks.end(), std::get<0>(stock)) != stock_picks.end()) {
 			total_performance += std::get<1>(stock);
 			min_performance = std::min(min_performance, std::get<1>(stock));
 		}
 	}
 
-	// 2. Shift the performance values to be positive
+	// Shift the performance values to be positive so we don't get a negative amount of money
+	// some performances can be negatives if the stocks went down in price in the specific time frame we are calculating
 	total_performance += (-min_performance) * stock_picks.size();
 
-	// 3. Create an empty vector to store the stock tickers and their corresponding investment amounts
+	// create an empty vector to store the stocks and their corresponding investment amounts
 	std::vector<std::pair<std::string, double>> investment_allocation;
 
-	// 4. Iterate through the stock_picks vector and create a pair of stock ticker and investment amount
-
+	// iterate through the stock picks vector and initialize a pair of stock ticker and investment amount
 	for (const auto& stock_ticker : stock_picks) {
-		// Find the stock's performance in the stocks_performance vector
+		// get the stock performance in the stocks_performance vector
+		//used find_it algorithm https://en.cppreference.com/w/cpp/algorithm/find
 		auto it = std::find_if(stocks_performance.begin(), stocks_performance.end(), [&](const auto& stock) {
 			return std::get<0>(stock) == stock_ticker;
 			});
 
 		if (it != stocks_performance.end()) {
+			//fincancial formulas were found in invetopedia "stock performance"
 			// Calculate the investment amount for this stock based on its shifted performance relative to the total performance
 			double stock_performance = std::get<1>(*it) + (-min_performance);
 			double investment_for_stock = investment * (stock_performance / total_performance);
-			// Add the stock ticker and investment amount to the investment_allocation vector
+
+			// Add the stock ticker and investment amount to the investment allocation vector
 			investment_allocation.push_back(std::make_pair(stock_ticker, investment_for_stock));
 		}
 	}
 
-	// 5. Return the investment_allocation vector containing the stock tickers and their corresponding investment amounts
+	// Return the investment_allocation vector containing the stock tickers and their corresponding investment amounts
 	return investment_allocation;
 }
+
 
 
 namespace Project3 {
